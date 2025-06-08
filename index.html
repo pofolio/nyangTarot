@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>냥냥 타로</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #f0e6ff 50%, #e6f3ff 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .screen {
+            display: none;
+            min-height: calc(100vh - 80px);
+            padding: 20px;
+            padding-bottom: 100px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes wiggle {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            25% {
+                transform: rotate(-5deg);
+            }
+
+            75% {
+                transform: rotate(5deg);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #8B5A96;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            color: #B19CD9;
+            font-size: 16px;
+        }
+
+        .card-container {
+            background: linear-gradient(145deg, #ffffff 0%, #fdf7ff 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(139, 90, 150, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .main-button {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            box-shadow: 0 6px 20px rgba(255, 154, 158, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 154, 158, 0.6);
+        }
+
+        .main-button:active {
+            transform: translateY(0);
+        }
+
+        .secondary-button {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #8B5A96;
+        }
+
+        .secondary-button:hover {
+            box-shadow: 0 8px 25px rgba(168, 237, 234, 0.6);
+        }
+
+        .mood-selector {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .mood-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            flex: 1;
+            margin: 0 5px;
+        }
+
+        .mood-item:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
+        }
+
+        .mood-item.selected {
+            background: linear-gradient(135deg, #ffeef8, #f0e6ff);
+            transform: scale(1.1);
+        }
+
+        .mood-emoji {
+            font-size: 32px;
+            display: block;
+            margin-bottom: 8px;
+            animation: bounce 2s infinite;
+        }
+
+        .cat-character {
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+            background: linear-gradient(145deg, #ffa500, #ff8c00);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            animation: wiggle 3s ease-in-out infinite;
+        }
+
+        .cat-character:hover {
+            transform: scale(1.1);
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        .tarot-cards {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .tarot-card {
+            width: 80px;
+            height: 120px;
+            background: linear-gradient(145deg, #6a5acd, #9370db);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tarot-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(106, 90, 205, 0.4);
+        }
+
+        .tarot-card.flipped {
+            background: linear-gradient(145deg, #ffffff, #f8f8ff);
+            color: #6a5acd;
+            transform: rotateY(180deg);
+        }
+
+        .card-result {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(145deg, #fff5ee, #ffeef8);
+            border-radius: 15px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .card-result.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .collection-item {
+            aspect-ratio: 1;
+            background: linear-gradient(145deg, #e6f3ff, #f0e6ff);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .collection-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .chat-message.user {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .chat-message.bot {
+            background: linear-gradient(135deg, #ffeef8, #f0e6ff);
+            margin-right: auto;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .chat-input:focus {
+            border-color: #ff9a9e;
+        }
+
+        .send-button {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 154, 158, 0.1);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .nav-text {
+            font-size: 12px;
+        }
+
+        .emotion-chart {
+            width: 100%;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            position: relative;
+        }
+
+        .chart-bar {
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(90deg, #ff9a9e, #fecfef);
+            border-radius: 10px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #a8edea, #fed6e3);
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+
+        .floating-hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff9a9e;
+            font-size: 20px;
+            animation: float 3s ease-in-out infinite;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100px);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .suggestion-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .suggestion-button {
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-button:hover {
+            background: linear-gradient(135deg, #ffeef8, #f0e6ff);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="floating-hearts" id="hearts"></div>
+
+        <!-- 메인 대시보드 -->
+        <div class="screen active" id="home">
+            <div class="header">
+                <h1>🐾 냥냥 타로 🐾</h1>
+                <p>냥냥이와 함께하는 하루, 안녕하세요!</p>
+            </div>
+
+            <div class="card-container">
+                <div class="cat-character pulse" onclick="showHearts()">
+                    🐱
+                </div>
+                <p style="text-align: center; color: #8B5A96; margin-top: 10px;">루나냥이 여러분을 기다려요!</p>
+            </div>
+
+            <button class="main-button" onclick="switchScreen('tarot')">
+                🔮 오늘의 타로 뽑기
+            </button>
+
+            <button class="main-button secondary-button" onclick="switchScreen('mood')">
+                💭 기분 기록하기
+            </button>
+
+            <button class="main-button secondary-button" onclick="switchScreen('collection')">
+                📚 나의 타로 컬렉션
+            </button>
+        </div>
+
+        <!-- 타로 카드 뽑기 -->
+        <div class="screen" id="tarot">
+            <div class="header">
+                <h1>🔮 오늘의 타로</h1>
+                <p>마음을 편안히 하고 카드를 선택해보세요</p>
+            </div>
+
+            <div class="card-container">
+                <div class="cat-character" id="tarotCat">
+                    🐱
+                </div>
+                <p style="text-align: center; color: #8B5A96;">루나냥이가 카드를 준비했어요!</p>
+            </div>
+
+            <div class="tarot-cards" id="tarotCards">
+                <div class="tarot-card" onclick="selectCard(0)">🌙</div>
+                <div class="tarot-card" onclick="selectCard(1)">⭐</div>
+                <div class="tarot-card" onclick="selectCard(2)">☀️</div>
+            </div>
+
+            <div class="card-result" id="cardResult">
+                <h3 id="cardTitle">카드 제목</h3>
+                <p id="cardMessage">카드 메시지가 여기에 표시됩니다.</p>
+                <button class="main-button" onclick="saveCard()">💾 컬렉션에 저장하기</button>
+            </div>
+        </div>
+
+        <!-- 감정 기록 -->
+        <div class="screen" id="mood">
+            <div class="header">
+                <h1>💭 오늘의 기분</h1>
+                <p>지금 기분이 어떠신가요?</p>
+            </div>
+
+            <div class="card-container">
+                <div class="mood-selector">
+                    <div class="mood-item" onclick="selectMood(1)">
+                        <span class="mood-emoji">😢</span>
+                        <span>슬픔</span>
+                    </div>
+                    <div class="mood-item" onclick="selectMood(2)">
+                        <span class="mood-emoji">😐</span>
+                        <span>보통</span>
+                    </div>
+                    <div class="mood-item" onclick="selectMood(3)">
+                        <span class="mood-emoji">😊</span>
+                        <span>좋음</span>
+                    </div>
+                    <div class="mood-item" onclick="selectMood(4)">
+                        <span class="mood-emoji">😍</span>
+                        <span>최고</span>
+                    </div>
+                </div>
+
+                <div class="emotion-chart">
+                    <h4 style="margin-bottom: 15px; color: #8B5A96;">이번 주 감정 변화</h4>
+                    <div class="chart-bar">
+                        <div class="chart-fill" style="width: 70%"></div>
+                        <span style="position: absolute; right: 10px; top: 2px; font-size: 12px;">월</span>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-fill" style="width: 85%"></div>
+                        <span style="position: absolute; right: 10px; top: 2px; font-size: 12px;">화</span>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-fill" style="width: 60%"></div>
+                        <span style="position: absolute; right: 10px; top: 2px; font-size: 12px;">수</span>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-fill" style="width: 90%"></div>
+                        <span style="position: absolute; right: 10px; top: 2px; font-size: 12px;">목</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 타로 컬렉션 -->
+        <div class="screen" id="collection">
+            <div class="header">
+                <h1>📚 나의 컬렉션</h1>
+                <p>지금까지 뽑은 타로 카드들</p>
+            </div>
+
+            <div class="card-container">
+                <div class="collection-grid">
+                    <div class="collection-item" onclick="showCardDetail(0)">
+                        <div style="font-size: 24px;">🌙</div>
+                        <div style="font-size: 12px; margin-top: 5px;">어제</div>
+                    </div>
+                    <div class="collection-item" onclick="showCardDetail(1)">
+                        <div style="font-size: 24px;">⭐</div>
+                        <div style="font-size: 12px; margin-top: 5px;">3일전</div>
+                    </div>
+                    <div class="collection-item" onclick="showCardDetail(2)">
+                        <div style="font-size: 24px;">☀️</div>
+                        <div style="font-size: 12px; margin-top: 5px;">일주일전</div>
+                    </div>
+                    <div class="collection-item" onclick="showCardDetail(3)">
+                        <div style="font-size: 24px;">🌟</div>
+                        <div style="font-size: 12px; margin-top: 5px;">2주전</div>
+                    </div>
+                    <div class="collection-item" onclick="showCardDetail(4)">
+                        <div style="font-size: 24px;">🌈</div>
+                        <div style="font-size: 12px; margin-top: 5px;">3주전</div>
+                    </div>
+                    <div class="collection-item" onclick="showCardDetail(5)">
+                        <div style="font-size: 24px;">💫</div>
+                        <div style="font-size: 12px; margin-top: 5px;">한달전</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 챗봇 -->
+        <div class="screen" id="chat">
+            <div class="header">
+                <h1>💬 루나냥 상담</h1>
+                <p>궁금한 것이 있으면 언제든 물어보세요</p>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="chat-message bot">
+                    안녕하세요! 저는 루나냥이에요 🐱 오늘 기분은 어떠세요?
+                </div>
+            </div>
+
+            <div class="suggestion-buttons">
+                <div class="suggestion-button" onclick="sendSuggestion('이 카드가 무슨 뜻일까요?')">이 카드가 무슨 뜻일까요?</div>
+                <div class="suggestion-button" onclick="sendSuggestion('내일은 괜찮을까요?')">내일은 괜찮을까요?</div>
+                <div class="suggestion-button" onclick="sendSuggestion('요즘 고민이 많아요')">요즘 고민이 많아요</div>
+            </div>
+
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput" placeholder="루나냥에게 말해보세요..."
+                    onkeypress="handleEnter(event)">
+                <button class="send-button" onclick="sendMessage()">💌</button>
+            </div>
+        </div>
+
+        <!-- 하단 네비게이션 -->
+        <div class="bottom-nav">
+            <div class="nav-container">
+                <div class="nav-item active" onclick="switchScreen('home')">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">홈</span>
+                </div>
+                <div class="nav-item" onclick="switchScreen('tarot')">
+                    <span class="nav-icon">🔮</span>
+                    <span class="nav-text">타로</span>
+                </div>
+                <div class="nav-item" onclick="switchScreen('mood')">
+                    <span class="nav-icon">💭</span>
+                    <span class="nav-text">감정</span>
+                </div>
+                <div class="nav-item" onclick="switchScreen('collection')">
+                    <span class="nav-icon">📚</span>
+                    <span class="nav-text">컬렉션</span>
+                </div>
+                <div class="nav-item" onclick="switchScreen('chat')">
+                    <span class="nav-icon">💬</span>
+                    <span class="nav-text">루나냥</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMood = null;
+        let selectedCard = null;
+        let savedCards = [];
+
+        const tarotCards = [
+            { title: "달 카드", message: "직감을 믿고 내면의 소리에 귀 기울여보세요. 숨겨진 진실이 곧 드러날 것입니다.", emoji: "🌙" },
+            { title: "별 카드", message: "희망을 잃지 마세요. 어둠 뒤에는 항상 밝은 빛이 기다리고 있습니다.", emoji: "⭐" },
+            { title: "태양 카드", message: "밝고 긍정적인 에너지가 당신을 둘러싸고 있습니다. 자신감을 가지세요!", emoji: "☀️" }
+        ];
+
+        const chatResponses = [
+            "그런 기분이 드는 것은 자연스러운 일이에요. 루나냥이 응원할게요! 🐾",
+            "타로 카드는 우리에게 방향을 제시해주는 나침반 같은 존재예요 ✨",
+            "괜찮아요, 모든 일에는 때가 있어요. 조금 더 기다려보세요 🌸",
+            "당신의 감정을 소중히 여기세요. 그것이 성장의 첫걸음이에요 💚",
+            "루나냥이 항상 여기 있으니까 언제든 이야기해주세요! 🐱💕"
+        ];
+
+        function switchScreen(screenId) {
+            // 모든 화면 숨기기
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+
+            // 모든 네비게이션 아이템 비활성화
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 선택된 화면 표시
+            document.getElementById(screenId).classList.add('active');
+
+            // 해당 네비게이션 아이템 활성화
+            event.target.closest('.nav-item')?.classList.add('active');
+        }
+
+        function selectMood(moodLevel) {
+            currentMood = moodLevel;
+
+            // 모든 기분 아이템 선택 해제
+            document.querySelectorAll('.mood-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // 선택된 기분 아이템 활성화
+            event.target.closest('.mood-item').classList.add('selected');
+
+            // 피드백 메시지
+            setTimeout(() => {
+                alert('기분이 기록되었어요! 루나냥이 응원할게요 🐾');
+            }, 500);
+        }
+
+        function selectCard(cardIndex) {
+            selectedCard = cardIndex;
+            const card = event.target;
+            const cardData = tarotCards[cardIndex];
+
+            // 카드 뒤집기 애니메이션
+            card.classList.add('flipped');
+            card.textContent = cardData.emoji;
+
+            // 결과 표시
+            setTimeout(() => {
+                document.getElementById('cardTitle').textContent = cardData.title;
+                document.getElementById('cardMessage').textContent = cardData.message;
+                document.getElementById('cardResult').classList.add('show');
+
+                // 고양이 캐릭터 애니메이션
+                document.getElementById('tarotCat').style.animation = 'bounce 0.8s ease-in-out';
+            }, 800);
+        }
+
+        function saveCard() {
+            if (selectedCard !== null) {
+                const cardData = tarotCards[selectedCard];
+                savedCards.push({
+                    ...cardData,
+                    date: new Date().toLocaleDateString('ko-KR'),
+                    mood: currentMood
+                });
+
+                alert('카드가 컬렉션에 저장되었어요! 📚✨');
+
+                // 결과 숨기고 초기화
+                document.getElementById('cardResult').classList.remove('show');
+                document.querySelectorAll('.tarot-card').forEach(card => {
+                    card.classList.remove('flipped');
+                    card.textContent = card.textContent.includes('🌙') ? '🌙' :
+                        card.textContent.includes('⭐') ? '⭐' : '☀️';
+                });
+                selectedCard = null;
+            }
+        }
+
+        function showCardDetail(cardIndex) {
+            const messages = [
+                "달 카드: 직감을 믿고 내면의 목소리에 귀 기울이세요",
+                "별 카드: 희망을 잃지 마세요. 밝은 미래가 기다려요",
+                "태양 카드: 긍정적인 에너지로 가득한 하루가 될 거예요",
+                "별똥별 카드: 소원이 이루어질 징조가 보여요",
+                "무지개 카드: 다양한 가능성과 기회가 펼쳐져요",
+                "유성 카드: 빠른 변화와 새로운 시작을 의미해요"
+            ];
+
+            alert(messages[cardIndex] + " ✨");
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (message) {
+                addChatMessage(message, 'user');
+                input.value = '';
+
+                // 봇 응답 (약간의 지연 후)
+                setTimeout(() => {
+                    const randomResponse = chatResponses[Math.floor(Math.random() * chatResponses.length)];
+                    addChatMessage(randomResponse, 'bot');
+                }, 1000);
+            }
+        }
+
+        function sendSuggestion(message) {
+            addChatMessage(message, 'user');
+
+            setTimeout(() => {
+                let response = '';
+                if (message.includes('카드')) {
+                    response = '타로 카드는 우리 내면의 지혜를 반영해주는 거울 같은 존재예요. 카드가 전하는 메시지를 마음으로 받아들여보세요 🔮✨';
+                } else if (message.includes('내일')) {
+                    response = '내일은 새로운 가능성으로 가득한 하루가 될 거예요! 긍정적인 마음으로 맞이해보세요 🌟';
+                } else if (message.includes('고민')) {
+                    response = '고민이 있을 때는 루나냥과 함께 차근차근 풀어가요. 혼자가 아니니까 괜찮아요 🐱💕';
+                } else {
+                    response = chatResponses[Math.floor(Math.random() * chatResponses.length)];
+                }
+                addChatMessage(response, 'bot');
+            }, 1000);
+        }
+
+        function addChatMessage(message, sender) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}`;
+            messageDiv.textContent = message;
+
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function showHearts() {
+            const heartsContainer = document.getElementById('hearts');
+
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.textContent = '💖';
+                    heart.style.left = Math.random() * 100 + '%';
+                    heart.style.animationDelay = Math.random() * 2 + 's';
+
+                    heartsContainer.appendChild(heart);
+
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 3000);
+                }, i * 200);
+            }
+        }
+
+        // 페이지 로드 시 초기 설정
+        document.addEventListener('DOMContentLoaded', function () {
+            // 환영 메시지
+            setTimeout(() => {
+                showHearts();
+            }, 1000);
+
+            // 네비게이션 이벤트 리스너 설정
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                item.addEventListener('click', function () {
+                    const screens = ['home', 'tarot', 'mood', 'collection', 'chat'];
+                    switchScreen(screens[index]);
+
+                    // 네비게이션 활성화 상태 업데이트
+                    document.querySelectorAll('.nav-item').forEach(navItem => {
+                        navItem.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+
+            // 감정 차트 애니메이션
+            setTimeout(() => {
+                document.querySelectorAll('.chart-fill').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 500);
+                });
+            }, 2000);
+        });
+
+        // 주기적으로 고양이 캐릭터 애니메이션 실행
+        setInterval(() => {
+            const cats = document.querySelectorAll('.cat-character');
+            cats.forEach(cat => {
+                if (Math.random() > 0.7) {
+                    cat.style.animation = 'bounce 0.6s ease-in-out';
+                    setTimeout(() => {
+                        cat.style.animation = 'wiggle 3s ease-in-out infinite';
+                    }, 600);
+                }
+            });
+        }, 5000);
+
+        // 터치 피드백
+        document.addEventListener('touchstart', function (e) {
+            if (e.target.matches('.main-button, .nav-item, .mood-item, .tarot-card')) {
+                e.target.style.transform = 'scale(0.95)';
+            }
+        });
+
+        document.addEventListener('touchend', function (e) {
+            if (e.target.matches('.main-button, .nav-item, .mood-item, .tarot-card')) {
+                setTimeout(() => {
+                    e.target.style.transform = '';
+                }, 100);
+            }
+        });
+    </script>
+</body>
+
+</html>
